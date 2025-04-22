@@ -1,0 +1,29 @@
+{
+  "name": "webcrawler",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "bin": {
+    "crawler": "./build/main/cli.js"
+  },
+  "scripts": {
+    "build": "run-p build:*",
+    "build:main": "tsc -p tsconfig.json",
+    "build:module": "tsc -p tsconfig.module.json",
+    "dev": "npm run build && node ./build/main/cli.js"
+  },
+  "main": "build/main/index.js",
+  "typings": "build/module/index.d.ts",
+  "module": "build/module/index.js",
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "cheerio": "^1.0.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@types/cheerio": "^0.22.35"
+  }
+}
