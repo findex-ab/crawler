@@ -232,3 +232,5 @@ tags
 # .pnp.*
 
 # End of https://www.toptal.com/developers/gitignore/api/vim,emacs,node,yarn,npm
+/crawler_data/
+/*.sqlite

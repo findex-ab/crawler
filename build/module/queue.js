@@ -19,6 +19,7 @@ export class Queue {
             return null;
         const next = this.items[0];
         this.items.splice(0, 1);
+        this.lookup.delete(next);
         return next;
     }
     clear() {

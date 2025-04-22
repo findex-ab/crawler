@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.requestDocument = exports.requestPage = void 0;
+exports.requestFile = exports.requestDocument = exports.requestPage = void 0;
 const user_agents_json_1 = __importDefault(require("./data/user_agents.json"));
 const utils_1 = require("./utils");
 const cheerio = __importStar(require("cheerio"));
@@ -46,9 +46,9 @@ const requestPage = async (url, options = {}) => {
         const resp = await fetch(url, {
             method: "GET",
             headers: {
-                "user-agent": (0, utils_1.choose)(user_agents_json_1.default, options.seed ?? (Math.random() * 100 + Math.random() * time)),
+                "user-agent": (0, utils_1.choose)(user_agents_json_1.default, options.seed ?? Math.random() * 100 + Math.random() * time),
             },
-            redirect: 'follow',
+            redirect: "follow",
             signal: AbortSignal.timeout(options.timeout || 3500),
         });
         const text = await resp.text();
@@ -70,3 +70,36 @@ const requestDocument = async (url, options = {}) => {
     });
 };
 exports.requestDocument = requestDocument;
+const requestFile = async (url, options = {}) => {
+    try {
+        const time = new Date().getTime() / 1000;
+        const resp = await fetch(url, {
+            method: "GET",
+            headers: {
+                "user-agent": (0, utils_1.choose)(user_agents_json_1.default, options.seed ?? Math.random() * 100 + Math.random() * time),
+            },
+            redirect: "follow",
+            ...(options.timeout
+                ? {
+                    signal: AbortSignal.timeout(options.timeout),
+                }
+                : {}),
+        });
+        if (!resp.ok)
+            return null;
+        const arrayBuffer = await resp.arrayBuffer();
+        if (arrayBuffer.byteLength <= 0)
+            return null;
+        const headers = resp.headers;
+        const entries = Array.from(headers.entries());
+        const headerDict = Object.assign({}, ...entries.map(([k, v]) => ({ [k]: v })));
+        return {
+            arrayBuffer,
+            headers: headerDict,
+        };
+    }
+    catch (e) {
+        return null;
+    }
+};
+exports.requestFile = requestFile;

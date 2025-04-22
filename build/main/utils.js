@@ -1,6 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTime = exports.urlJoin = exports.choose = exports.hashv1 = exports.sleep = exports.range = exports.clamp = void 0;
+exports.getFileName = exports.getTime = exports.urlJoin = exports.choose = exports.hashv1 = exports.sleep = exports.range = exports.clamp = void 0;
+const path_1 = __importDefault(require("path"));
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 exports.clamp = clamp;
 const range = (n) => n <= 0 || typeof n !== "number" || isNaN(n) || !isFinite(n)
@@ -45,3 +49,11 @@ const getTime = () => {
     return performance.now();
 };
 exports.getTime = getTime;
+const getFileName = (x) => {
+    const basename = path_1.default.basename(x);
+    const idx = basename.lastIndexOf('?');
+    if (idx > 0)
+        return basename.slice(0, idx);
+    return basename;
+};
+exports.getFileName = getFileName;

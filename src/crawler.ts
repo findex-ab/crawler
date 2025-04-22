@@ -18,6 +18,8 @@ export type WebCrawlerOptions = {
 export class WebCrawler {
   scheduler = new Scheduler();
   queue = new Queue<string>();
+  visited = new Set<string>();
+
   options: WebCrawlerOptions;
   plugins: WebCrawlerPlugin[] = [];
 
@@ -33,6 +35,12 @@ export class WebCrawler {
   private log(...args: any[]) {
     if (!this.options.verbose) return;
     console.log(...args);
+  }
+
+  private shouldSkip(url: string) {
+    if (this.visited.has(url)) return true;
+    if (!url.startsWith("http://") && !url.startsWith("https://")) return true;
+    return false;
   }
 
   private async _crawl(urls: string[]): Promise<void> {
@@ -54,7 +62,11 @@ export class WebCrawler {
       for (let i = 0; i < chunkSize; i++) {
         const url = this.queue.pop();
         if (!url) break;
+        if (this.shouldSkip(url)) continue;
+        this.visited.add(url);
+
         this.log(url);
+
         this.scheduler.schedule(async () => {
           const $ = await requestDocument(url, {
             timeout: requestTimeout,
@@ -69,12 +81,15 @@ export class WebCrawler {
               (it) =>
                 !it.includes("tel:") &&
                 !it.includes("mailto:") &&
-                !it.includes("javascript:"),
+                !it.includes("javascript:") &&
+                !this.shouldSkip(it),
             )
             .map((it) => urlJoin(url, it));
           links.forEach((link) => this.queue.push(link));
 
-          await Promise.allSettled(this.plugins.map(async (plug) => await plug.run($, url)));
+          await Promise.allSettled(
+            this.plugins.map(async (plug) => await plug.run($, url)),
+          );
         }, requestTimeout);
       }
       await this.scheduler.process(chunkSize);
@@ -83,7 +98,6 @@ export class WebCrawler {
 
   async crawl(urls: string[]): Promise<void> {
     const { maxCrawlTime = DEFAULT_MAX_CRAWL_TIME } = this.options;
-
     return await Promise.race([this._crawl(urls), sleep(maxCrawlTime)]);
   }
 }

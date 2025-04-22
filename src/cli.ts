@@ -1,23 +1,60 @@
 import { WebCrawler } from "./crawler";
-import { urlJoin } from "./utils";
+import { requestFile } from "./request";
+import { getFileName, urlJoin } from "./utils";
+import pathlib from 'path';
+import fs from 'fs';
+import sqlite from 'node:sqlite';
+
+const OUT_DIR = './crawler_data';
 
 const main = async () => {
+  if (!fs.existsSync(OUT_DIR)) {
+    fs.mkdirSync(OUT_DIR, {
+      recursive: true
+    });
+  }
+
+  const db = new sqlite.DatabaseSync('./tmp.sqlite');
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS images (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      src TEXT,
+      filename TEXT
+    ) STRICT
+  `);
+
   const crawler = new WebCrawler({
     chunkSize: 10,
     requestTimeout: 3500,
-    maxCrawlTime: 60000,
+    maxCrawlTime: 60000 * 10,
   });
 
   crawler.use({
-    run: ($, url) => {
+    run: async ($, url) => {
       const title = $("title").first().text();
       console.log(title);
-      $('img[src]').toArray().forEach(el => {
+      $('img[src]').toArray().forEach(async (el) => {
         const src = $(el).attr('src');
         if (src) {
           const joined = urlJoin(url, src);
-          console.log(joined);
+          const filename = getFileName(joined);
+
+          const insert = db.prepare('INSERT INTO images (src, filename) VALUES (?, ?)');
+          insert.run(joined, filename);
+          console.log(filename);
+          
+          //if (filename.endsWith('.jpg') || filename.endsWith('.png')) {
+          //  const file = await requestFile(src);
+          //  if (file) {
+          //    //const fullpath = pathlib.join(OUT_DIR, filename);
+          //   // console.log(fullpath);
+          //  //  fs.writeFileSync(fullpath, Buffer.from(file.arrayBuffer), { encoding: 'binary' });
+          //  }
+          //}
+          //console.log(joined);
+          
         }
+
       })
     },
   });

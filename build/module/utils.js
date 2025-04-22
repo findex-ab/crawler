@@ -1,3 +1,4 @@
+import pathlib from 'path';
 export const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 export const range = (n) => n <= 0 || typeof n !== "number" || isNaN(n) || !isFinite(n)
     ? []
@@ -34,4 +35,11 @@ export const urlJoin = (a, b) => {
 };
 export const getTime = () => {
     return performance.now();
+};
+export const getFileName = (x) => {
+    const basename = pathlib.basename(x);
+    const idx = basename.lastIndexOf('?');
+    if (idx > 0)
+        return basename.slice(0, idx);
+    return basename;
 };

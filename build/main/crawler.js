@@ -11,6 +11,7 @@ const DEFAULT_REQUEST_TIMEOUT = 3500;
 class WebCrawler {
     scheduler = new scheduler_1.Scheduler();
     queue = new queue_1.Queue();
+    visited = new Set();
     options;
     plugins = [];
     constructor(options = {}) {
@@ -25,6 +26,13 @@ class WebCrawler {
             return;
         console.log(...args);
     }
+    shouldSkip(url) {
+        if (this.visited.has(url))
+            return true;
+        if (!url.startsWith("http://") && !url.startsWith("https://"))
+            return true;
+        return false;
+    }
     async _crawl(urls) {
         const { chunkSize = DEFAULT_CHUNK_SIZE, requestTimeout = DEFAULT_REQUEST_TIMEOUT, maxCrawlTime = DEFAULT_MAX_CRAWL_TIME, } = this.options;
         urls.forEach((url) => this.queue.push(url));
@@ -38,6 +46,9 @@ class WebCrawler {
                 const url = this.queue.pop();
                 if (!url)
                     break;
+                if (this.shouldSkip(url))
+                    continue;
+                this.visited.add(url);
                 this.log(url);
                 this.scheduler.schedule(async () => {
                     const $ = await (0, request_1.requestDocument)(url, {
@@ -52,7 +63,8 @@ class WebCrawler {
                         .filter((it) => typeof it === "string")
                         .filter((it) => !it.includes("tel:") &&
                         !it.includes("mailto:") &&
-                        !it.includes("javascript:"))
+                        !it.includes("javascript:") &&
+                        !this.shouldSkip(it))
                         .map((it) => (0, utils_1.urlJoin)(url, it));
                     links.forEach((link) => this.queue.push(link));
                     await Promise.allSettled(this.plugins.map(async (plug) => await plug.run($, url)));
