@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Queue = void 0;
+const utils_1 = require("./utils");
 class Queue {
     lookup = new Set();
     items = [];
@@ -9,6 +10,9 @@ class Queue {
     }
     get length() {
         return this.items.length;
+    }
+    shuffle() {
+        this.items = (0, utils_1.shuffle)(this.items);
     }
     push(item) {
         if (this.has(item))

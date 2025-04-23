@@ -76,6 +76,9 @@ class WebCrawler {
                     await plug.onCleanup();
                 }
             }));
+            if (this.options.shuffle) {
+                this.queue.shuffle();
+            }
         }
     }
     async crawl(urls) {

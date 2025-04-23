@@ -6,6 +6,7 @@ export type WebCrawlerOptions = {
     chunkSize?: number;
     maxCrawlTime?: number;
     verbose?: boolean;
+    shuffle?: boolean;
 };
 export declare class WebCrawler {
     scheduler: Scheduler;

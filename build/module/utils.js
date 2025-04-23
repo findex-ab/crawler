@@ -1,4 +1,4 @@
-import pathlib from 'path';
+import pathlib from "path";
 export const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 export const range = (n) => n <= 0 || typeof n !== "number" || isNaN(n) || !isFinite(n)
     ? []
@@ -30,7 +30,7 @@ export const urlJoin = (a, b) => {
         return new URL(b, a).href;
     }
     catch {
-        return b || a || '';
+        return b || a || "";
     }
 };
 export const getTime = () => {
@@ -38,7 +38,7 @@ export const getTime = () => {
 };
 export const getFileName = (x) => {
     const basename = pathlib.basename(x);
-    const idx = basename.lastIndexOf('?');
+    const idx = basename.lastIndexOf("?");
     if (idx > 0)
         return basename.slice(0, idx);
     return basename;
@@ -50,4 +50,17 @@ export const chunkify = (arr, chunkSize = 2) => {
         result.push(part);
     }
     return result;
+};
+export const shuffle = (array) => {
+    const copy = [...array];
+    let currentIndex = copy.length;
+    while (currentIndex != 0) {
+        let randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [copy[currentIndex], copy[randomIndex]] = [
+            copy[randomIndex],
+            copy[currentIndex],
+        ];
+    }
+    return copy;
 };

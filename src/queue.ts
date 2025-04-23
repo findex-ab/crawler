@@ -1,3 +1,5 @@
+import { shuffle } from "./utils";
+
 export class Queue<T> {
   private lookup: Set<T> = new Set();
   items: Array<T> = [];
@@ -8,6 +10,10 @@ export class Queue<T> {
 
   get length() {
     return this.items.length;
+  }
+
+  shuffle() {
+    this.items = shuffle(this.items);
   }
 
   push(item: T): T | null {

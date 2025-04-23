@@ -1,5 +1,4 @@
-import pathlib from 'path';
-
+import pathlib from "path";
 
 export const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
@@ -31,27 +30,29 @@ export const hashv1 = (seed: number) => {
 };
 
 export const choose = <T = any>(arr: T[], seed: number): T => {
-  return arr[clamp(Math.round(hashv1(seed) * (arr.length-1)), 0, arr.length-1)];
+  return arr[
+    clamp(Math.round(hashv1(seed) * (arr.length - 1)), 0, arr.length - 1)
+  ];
 };
 
 export const urlJoin = (a: string, b: string) => {
   try {
     return new URL(b, a).href;
   } catch {
-    return b || a || '';
+    return b || a || "";
   }
-}
+};
 
 export const getTime = (): number => {
   return performance.now();
-}
+};
 
 export const getFileName = (x: string): string => {
   const basename = pathlib.basename(x);
-  const idx = basename.lastIndexOf('?');
+  const idx = basename.lastIndexOf("?");
   if (idx > 0) return basename.slice(0, idx);
   return basename;
-}
+};
 
 export const chunkify = <T = any>(arr: T[], chunkSize: number = 2): T[][] => {
   const result: T[][] = [];
@@ -62,4 +63,20 @@ export const chunkify = <T = any>(arr: T[], chunkSize: number = 2): T[][] => {
   }
 
   return result;
+};
+
+export const shuffle = <T = any>(array: T[]): T[] => {
+  const copy = [...array];
+  let currentIndex = copy.length;
+
+  while (currentIndex != 0) {
+    let randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [copy[currentIndex], copy[randomIndex]] = [
+      copy[randomIndex],
+      copy[currentIndex],
+    ];
+  }
+
+  return copy;
 };

@@ -1,3 +1,4 @@
+import { shuffle } from "./utils";
 export class Queue {
     lookup = new Set();
     items = [];
@@ -6,6 +7,9 @@ export class Queue {
     }
     get length() {
         return this.items.length;
+    }
+    shuffle() {
+        this.items = shuffle(this.items);
     }
     push(item) {
         if (this.has(item))

@@ -13,6 +13,7 @@ export type WebCrawlerOptions = {
   chunkSize?: number;
   maxCrawlTime?: number;
   verbose?: boolean;
+  shuffle?: boolean;
 };
 
 export class WebCrawler {
@@ -101,6 +102,10 @@ export class WebCrawler {
           }
         }),
       );
+
+      if (this.options.shuffle) {
+        this.queue.shuffle();
+      }
     }
   }
 

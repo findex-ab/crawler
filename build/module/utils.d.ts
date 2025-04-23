@@ -7,3 +7,4 @@ export declare const urlJoin: (a: string, b: string) => string;
 export declare const getTime: () => number;
 export declare const getFileName: (x: string) => string;
 export declare const chunkify: <T = any>(arr: T[], chunkSize?: number) => T[][];
+export declare const shuffle: <T = any>(array: T[]) => T[];

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.chunkify = exports.getFileName = exports.getTime = exports.urlJoin = exports.choose = exports.hashv1 = exports.sleep = exports.range = exports.clamp = void 0;
+exports.shuffle = exports.chunkify = exports.getFileName = exports.getTime = exports.urlJoin = exports.choose = exports.hashv1 = exports.sleep = exports.range = exports.clamp = void 0;
 const path_1 = __importDefault(require("path"));
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 exports.clamp = clamp;
@@ -41,7 +41,7 @@ const urlJoin = (a, b) => {
         return new URL(b, a).href;
     }
     catch {
-        return b || a || '';
+        return b || a || "";
     }
 };
 exports.urlJoin = urlJoin;
@@ -51,7 +51,7 @@ const getTime = () => {
 exports.getTime = getTime;
 const getFileName = (x) => {
     const basename = path_1.default.basename(x);
-    const idx = basename.lastIndexOf('?');
+    const idx = basename.lastIndexOf("?");
     if (idx > 0)
         return basename.slice(0, idx);
     return basename;
@@ -66,3 +66,17 @@ const chunkify = (arr, chunkSize = 2) => {
     return result;
 };
 exports.chunkify = chunkify;
+const shuffle = (array) => {
+    const copy = [...array];
+    let currentIndex = copy.length;
+    while (currentIndex != 0) {
+        let randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [copy[currentIndex], copy[randomIndex]] = [
+            copy[randomIndex],
+            copy[currentIndex],
+        ];
+    }
+    return copy;
+};
+exports.shuffle = shuffle;
