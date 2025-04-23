@@ -71,6 +71,11 @@ class WebCrawler {
                 }, requestTimeout);
             }
             await this.scheduler.process(chunkSize);
+            await Promise.allSettled(this.plugins.map(async (plug) => {
+                if (plug.onCleanup) {
+                    await plug.onCleanup();
+                }
+            }));
         }
     }
     async crawl(urls) {
