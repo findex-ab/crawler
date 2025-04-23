@@ -17,3 +17,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./crawler"), exports);
 __exportStar(require("./plugin"), exports);
 __exportStar(require("./request"), exports);
+__exportStar(require("./workerTypes"), exports);
+__exportStar(require("./batch"), exports);

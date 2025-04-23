@@ -1,9 +1,9 @@
-import { WebCrawler } from "./crawler";
-import { requestFile } from "./request";
+import { WebCrawlerOptions } from "./crawler";
 import { getFileName, urlJoin } from "./utils";
-import pathlib from 'path';
 import fs from 'fs';
 import sqlite from 'node:sqlite';
+import { WebCrawlerPlugin } from "./plugin";
+import { batchCrawl } from "./batch";
 
 const OUT_DIR = './crawler_data';
 
@@ -23,43 +23,44 @@ const main = async () => {
     ) STRICT
   `);
 
-  const crawler = new WebCrawler({
+  const options: WebCrawlerOptions = {
     chunkSize: 10,
     requestTimeout: 3500,
-    maxCrawlTime: 60000 * 10,
-  });
+    maxCrawlTime: 1000 * 10,
+    verbose: true
+  }
 
-  crawler.use({
+  const plugin: WebCrawlerPlugin = {
     run: async ($, url) => {
       const title = $("title").first().text();
-      console.log(title);
-      $('img[src]').toArray().forEach(async (el) => {
-        const src = $(el).attr('src');
-        if (src) {
-          const joined = urlJoin(url, src);
-          const filename = getFileName(joined);
+      console.log(title, url);
+      //$('img[src]').toArray().forEach(async (el) => {
+      //  const src = $(el).attr('src');
+      //  if (src) {
+      //    const joined = urlJoin(url, src);
+      //    const filename = getFileName(joined);
 
-          const insert = db.prepare('INSERT INTO images (src, filename) VALUES (?, ?)');
-          insert.run(joined, filename);
-          console.log(filename);
-          
-          //if (filename.endsWith('.jpg') || filename.endsWith('.png')) {
-          //  const file = await requestFile(src);
-          //  if (file) {
-          //    //const fullpath = pathlib.join(OUT_DIR, filename);
-          //   // console.log(fullpath);
-          //  //  fs.writeFileSync(fullpath, Buffer.from(file.arrayBuffer), { encoding: 'binary' });
-          //  }
-          //}
-          //console.log(joined);
-          
-        }
+      //    const insert = db.prepare('INSERT INTO images (src, filename) VALUES (?, ?)');
+      //    insert.run(joined, filename);
+      //  //  console.log(filename);
+      //    
+      //    //if (filename.endsWith('.jpg') || filename.endsWith('.png')) {
+      //    //  const file = await requestFile(src);
+      //    //  if (file) {
+      //    //    //const fullpath = pathlib.join(OUT_DIR, filename);
+      //    //   // console.log(fullpath);
+      //    //  //  fs.writeFileSync(fullpath, Buffer.from(file.arrayBuffer), { encoding: 'binary' });
+      //    //  }
+      //    //}
+      //    //console.log(joined);
+      //    
+      //  }
 
-      })
+      //})
     },
-  });
+  }
 
-  await crawler.crawl([
+  await batchCrawl([
     "https://news.ycombinator.com/",
     "https://www.breakit.se/",
     "https://www.cnbc.com/world/?region=world",
@@ -115,7 +116,11 @@ const main = async () => {
     "https://bycloetta.se/",
     "https://www.castellum.se/",
     "https://rgnt-motorcycles.com/",
-  ]);
+  ], {
+    options: options,
+    numWorkers: 10,
+    plugins: [plugin]
+  });
 };
 
 main().catch((e) => console.error(e));

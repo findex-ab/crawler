@@ -6,3 +6,4 @@ export declare const choose: <T = any>(arr: T[], seed: number) => T;
 export declare const urlJoin: (a: string, b: string) => string;
 export declare const getTime: () => number;
 export declare const getFileName: (x: string) => string;
+export declare const chunkify: <T = any>(arr: T[], chunkSize?: number) => T[][];

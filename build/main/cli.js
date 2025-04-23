@@ -3,10 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const crawler_1 = require("./crawler");
-const utils_1 = require("./utils");
 const fs_1 = __importDefault(require("fs"));
 const node_sqlite_1 = __importDefault(require("node:sqlite"));
+const batch_1 = require("./batch");
 const OUT_DIR = './crawler_data';
 const main = async () => {
     if (!fs_1.default.existsSync(OUT_DIR)) {
@@ -22,37 +21,40 @@ const main = async () => {
       filename TEXT
     ) STRICT
   `);
-    const crawler = new crawler_1.WebCrawler({
+    const options = {
         chunkSize: 10,
         requestTimeout: 3500,
-        maxCrawlTime: 60000 * 10,
-    });
-    crawler.use({
+        maxCrawlTime: 1000 * 10,
+        verbose: true
+    };
+    const plugin = {
         run: async ($, url) => {
             const title = $("title").first().text();
-            console.log(title);
-            $('img[src]').toArray().forEach(async (el) => {
-                const src = $(el).attr('src');
-                if (src) {
-                    const joined = (0, utils_1.urlJoin)(url, src);
-                    const filename = (0, utils_1.getFileName)(joined);
-                    const insert = db.prepare('INSERT INTO images (src, filename) VALUES (?, ?)');
-                    insert.run(joined, filename);
-                    console.log(filename);
-                    //if (filename.endsWith('.jpg') || filename.endsWith('.png')) {
-                    //  const file = await requestFile(src);
-                    //  if (file) {
-                    //    //const fullpath = pathlib.join(OUT_DIR, filename);
-                    //   // console.log(fullpath);
-                    //  //  fs.writeFileSync(fullpath, Buffer.from(file.arrayBuffer), { encoding: 'binary' });
-                    //  }
-                    //}
-                    //console.log(joined);
-                }
-            });
+            console.log(title, url);
+            //$('img[src]').toArray().forEach(async (el) => {
+            //  const src = $(el).attr('src');
+            //  if (src) {
+            //    const joined = urlJoin(url, src);
+            //    const filename = getFileName(joined);
+            //    const insert = db.prepare('INSERT INTO images (src, filename) VALUES (?, ?)');
+            //    insert.run(joined, filename);
+            //  //  console.log(filename);
+            //    
+            //    //if (filename.endsWith('.jpg') || filename.endsWith('.png')) {
+            //    //  const file = await requestFile(src);
+            //    //  if (file) {
+            //    //    //const fullpath = pathlib.join(OUT_DIR, filename);
+            //    //   // console.log(fullpath);
+            //    //  //  fs.writeFileSync(fullpath, Buffer.from(file.arrayBuffer), { encoding: 'binary' });
+            //    //  }
+            //    //}
+            //    //console.log(joined);
+            //    
+            //  }
+            //})
         },
-    });
-    await crawler.crawl([
+    };
+    await (0, batch_1.batchCrawl)([
         "https://news.ycombinator.com/",
         "https://www.breakit.se/",
         "https://www.cnbc.com/world/?region=world",
@@ -108,6 +110,10 @@ const main = async () => {
         "https://bycloetta.se/",
         "https://www.castellum.se/",
         "https://rgnt-motorcycles.com/",
-    ]);
+    ], {
+        options: options,
+        numWorkers: 10,
+        plugins: [plugin]
+    });
 };
 main().catch((e) => console.error(e));

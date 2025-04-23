@@ -52,3 +52,14 @@ export const getFileName = (x: string): string => {
   if (idx > 0) return basename.slice(0, idx);
   return basename;
 }
+
+export const chunkify = <T = any>(arr: T[], chunkSize: number = 2): T[][] => {
+  const result: T[][] = [];
+
+  for (let i = 0; i < arr.length; i += chunkSize) {
+    const part = arr.slice(i, i + chunkSize);
+    result.push(part);
+  }
+
+  return result;
+};

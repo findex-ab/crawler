@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFileName = exports.getTime = exports.urlJoin = exports.choose = exports.hashv1 = exports.sleep = exports.range = exports.clamp = void 0;
+exports.chunkify = exports.getFileName = exports.getTime = exports.urlJoin = exports.choose = exports.hashv1 = exports.sleep = exports.range = exports.clamp = void 0;
 const path_1 = __importDefault(require("path"));
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 exports.clamp = clamp;
@@ -57,3 +57,12 @@ const getFileName = (x) => {
     return basename;
 };
 exports.getFileName = getFileName;
+const chunkify = (arr, chunkSize = 2) => {
+    const result = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        const part = arr.slice(i, i + chunkSize);
+        result.push(part);
+    }
+    return result;
+};
+exports.chunkify = chunkify;
